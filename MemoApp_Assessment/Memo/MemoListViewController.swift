@@ -27,7 +27,7 @@ class MemoListViewController: BaseViewController {
         mainView.tableView.dataSource = self
         mainView.tableView.register(MemoListTableViewCell.self, forCellReuseIdentifier: "MemoListTableViewCell")
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -47,6 +47,7 @@ class MemoListViewController: BaseViewController {
 }
 
 extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
+    //MARK: - 컨텐츠
     func numberOfSections(in tableView: UITableView) -> Int {
         //todo: 고정된 메모 있으면 섹션 2개, 없으면 1개
         return 2
@@ -66,6 +67,23 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
         return cell
     }
     
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let fixMemo = UIContextualAction(style: .normal, title: nil) { action, view, completionHandler in
+            print(#function)
+        }
+        //let image = note[indexPath.row].fixedMemo ? "pin.slash.fill" : "pin.slash"
+        fixMemo.image = UIImage(systemName: "pin.fill")
+        return UISwipeActionsConfiguration(actions: [fixMemo])
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteMemo = UIContextualAction(style: .normal, title: nil) { action, view, completionHandler in
+            print(#function)
+        }
+        deleteMemo.image = UIImage(systemName: "trash.fill")
+        return UISwipeActionsConfiguration(actions: [deleteMemo])
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //todo: 선택한 행 데이터가진 화면으로 이동 어떻게?
         self.navigationController?.pushViewController(MemoEditorViewController(), animated: true)
@@ -75,6 +93,7 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
         return 60
     }
     
+    //MARK: - 헤더
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
         guard let header = view as? UITableViewHeaderFooterView else { return }
         header.textLabel?.textColor = .white
