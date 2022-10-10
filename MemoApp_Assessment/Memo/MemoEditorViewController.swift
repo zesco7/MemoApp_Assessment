@@ -23,7 +23,7 @@ class MemoEditorViewController: BaseViewController {
         
         navigationAttribute()
         print("Realm is located at: ", localRealm.configuration.fileURL!)
-        
+        mainView.memoNote.becomeFirstResponder() //todo: 키보드가 텍스트뷰 가릴 때 키보드 올리기(IQKeyboardManager)
     }
     
     func navigationAttribute() {
@@ -44,7 +44,7 @@ class MemoEditorViewController: BaseViewController {
     }
     
     @objc func completionButtonClicked() {
-        //realm에 메모저장
+        //realm에 메모저장        
         let memoData = Memo(memoTitle: mainView.memoNote.text!, memoDate: Date(), memoContents: mainView.memoNote.text!) //레코드 생성
         
         do {

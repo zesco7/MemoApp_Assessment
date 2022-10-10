@@ -23,6 +23,8 @@
 		980E438528F2B846004D15FD /* Toast in Frameworks */ = {isa = PBXBuildFile; productRef = 980E438428F2B846004D15FD /* Toast */; };
 		980E438D28F2BA80004D15FD /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 980E438C28F2BA80004D15FD /* SnapKit */; };
 		980E439728F2D887004D15FD /* RealmModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 980E439628F2D887004D15FD /* RealmModel.swift */; };
+		981B960328F4162100D2EBFA /* UIViewController+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 981B960228F4162100D2EBFA /* UIViewController+Extension.swift */; };
+		981B960628F41A9200D2EBFA /* AppLaunchStatusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 981B960528F41A9200D2EBFA /* AppLaunchStatusManager.swift */; };
 		9884B71A28F2FAC20032E3B4 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 9884B71928F2FAC20032E3B4 /* Realm */; };
 		9884B71C28F2FAC20032E3B4 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 9884B71B28F2FAC20032E3B4 /* RealmSwift */; };
 /* End PBXBuildFile section */
@@ -44,6 +46,8 @@
 		980E437A28F2B800004D15FD /* MemoEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoEditorViewController.swift; sourceTree = "<group>"; };
 		980E437C28F2B80B004D15FD /* MemoEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoEditorView.swift; sourceTree = "<group>"; };
 		980E439628F2D887004D15FD /* RealmModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmModel.swift; sourceTree = "<group>"; };
+		981B960228F4162100D2EBFA /* UIViewController+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extension.swift"; sourceTree = "<group>"; };
+		981B960528F41A9200D2EBFA /* AppLaunchStatusManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLaunchStatusManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +84,7 @@
 		980E435628F2B758004D15FD /* MemoApp_Assessment */ = {
 			isa = PBXGroup;
 			children = (
+				981B960428F41A6000D2EBFA /* AppManager */,
 				980E438E28F2D052004D15FD /* Framework */,
 				980E436528F2B759004D15FD /* Info.plist */,
 				980E435728F2B758004D15FD /* AppDelegate.swift */,
@@ -136,6 +141,7 @@
 		980E436F28F2B78C004D15FD /* Utility */ = {
 			isa = PBXGroup;
 			children = (
+				981B960228F4162100D2EBFA /* UIViewController+Extension.swift */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -145,6 +151,14 @@
 			children = (
 			);
 			path = Framework;
+			sourceTree = "<group>";
+		};
+		981B960428F41A6000D2EBFA /* AppManager */ = {
+			isa = PBXGroup;
+			children = (
+				981B960528F41A9200D2EBFA /* AppLaunchStatusManager.swift */,
+			);
+			path = AppManager;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -230,6 +244,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				980E435C28F2B758004D15FD /* ViewController.swift in Sources */,
+				981B960328F4162100D2EBFA /* UIViewController+Extension.swift in Sources */,
+				981B960628F41A9200D2EBFA /* AppLaunchStatusManager.swift in Sources */,
 				980E437528F2B7D2004D15FD /* MemoListTableViewCell.swift in Sources */,
 				980E437928F2B7EF004D15FD /* MemoListView.swift in Sources */,
 				980E439728F2D887004D15FD /* RealmModel.swift in Sources */,
