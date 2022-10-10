@@ -405,6 +405,7 @@
 				DEVELOPMENT_TEAM = VSHQ8JA888;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MemoApp_Assessment/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "장태환";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -434,6 +435,7 @@
 				DEVELOPMENT_TEAM = VSHQ8JA888;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MemoApp_Assessment/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "장태환";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
