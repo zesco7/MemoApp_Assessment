@@ -52,7 +52,7 @@ class MemoListTableViewCell: UITableViewCell {
         lastEditedDateLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(5)
             make.leading.equalTo(self.snp.leading).offset(30)
-            make.width.lessThanOrEqualTo(180)
+            make.width.lessThanOrEqualTo(200)
             make.height.equalTo(20)
         }
         

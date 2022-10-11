@@ -15,11 +15,20 @@ class MemoListViewController: BaseViewController {
     var mainView = MemoListView()
     let tvcell = MemoListTableViewCell()
     
-    let localRealm = try! Realm()
+    let noteLocalRealm = try! Realm()
+    let fixedNoteLocalRealm = try! Realm()
+    
     var note : Results<Memo>! {
         didSet {
             mainView.tableView.reloadData()
             print("MEMO UPDATED")
+        }
+    }
+    
+    var fixedNote : Results<FixedMemo>! {
+        didSet {
+            mainView.tableView.reloadData()
+            print("FIXED MEMO UPDATED")
         }
     }
     
@@ -33,12 +42,15 @@ class MemoListViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
         if AppLaunchStatusManager.shared.checkFirstRun() { //앱 첫실행 체크 후 alert 실행
             showAlert()
         } else { }
         
-        note = localRealm.objects(Memo.self).sorted(byKeyPath: "memoDate", ascending: true)
+        
+        
+        
+        note = noteLocalRealm.objects(Memo.self).sorted(byKeyPath: "memoDate", ascending: true)
+        fixedNote = fixedNoteLocalRealm.objects(FixedMemo.self).sorted(byKeyPath: "memoDate", ascending: true)
         mainView.createMemoButton.addTarget(self, action: #selector(createMemoButtonClicked), for: .touchUpInside)
         
         makeSearchBar()
@@ -69,9 +81,12 @@ class MemoListViewController: BaseViewController {
     }
     
     func navigationAttribute() { //네비게이션에 searchController 등록
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        let totalMemoCount = numberFormatter.string(from: NSNumber(value: note.count))! //Int -> String이므로 옵셔널 unwrapping 필요
         self.navigationItem.hidesSearchBarWhenScrolling = false
         self.navigationItem.searchController = searchController
-        self.navigationItem.title = "\(note.count)개의 메모"
+        self.navigationItem.title = "\(totalMemoCount)개의 메모"
         self.navigationController?.navigationBar.prefersLargeTitles = true
     }
 }
@@ -80,42 +95,59 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
     //MARK: - 컨텐츠
     func numberOfSections(in tableView: UITableView) -> Int {
         //todo: 고정된 메모 있으면 섹션 2개, 없으면 1개
-        return 1
+        if fixedNote != nil {
+            return 2
+        } else {
+            return 1
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return note.count
+        if fixedNote != nil && section == 0 {
+            return fixedNote.count
+        } else {
+            return note.count
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "MemoListTableViewCell", for: indexPath) as? MemoListTableViewCell else { return UITableViewCell() }
-        
-        //todo: 날짜표시형식 변경
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "ko_KR")
-        let memoCreatedDate = Date()
-        if note[indexPath.row].memoDate != nil { //작성일이 당일 일때
-            dateFormatter.dateFormat = "오전 XX:XX"
-            dateFormatter.string(from: memoCreatedDate)
-        } else if note[indexPath.row].memoDate == Date() { //작성일이 이번주 일때
-            dateFormatter.dateFormat = "X요일"
-            dateFormatter.string(from: memoCreatedDate)
-        } else { //그외 작성일
-            dateFormatter.dateFormat = "YYYY.MM.dd a hh시 mm분"
-            dateFormatter.string(from: memoCreatedDate)
+
+        if fixedNote != nil { //fixedNote에 데이터 있으면 고정된 메모, 메모데이터 별도 표시
+            if indexPath.section == 0 {
+                cell.titleLabel.text = fixedNote[indexPath.row].memoTitle
+                cell.lastEditedDateLabel.text = "\(fixedNote[indexPath.row].memoDate)"
+                cell.contentsLabel.text = fixedNote[indexPath.row].memoContents
+            } else {
+                cell.titleLabel.text = note[indexPath.row].memoTitle
+                cell.lastEditedDateLabel.text = "\(note[indexPath.row].memoDate)"
+                cell.contentsLabel.text = note[indexPath.row].memoContents
+            }
+        } else { //fixedNote에 데이터 없으면 메모데이터만 표시
+            cell.titleLabel.text = note[indexPath.row].memoTitle
+            cell.lastEditedDateLabel.text = "\(note[indexPath.row].memoDate)"
+            cell.contentsLabel.text = note[indexPath.row].memoContents
         }
         
-        cell.titleLabel.text = note[indexPath.row].memoTitle
-        cell.lastEditedDateLabel.text = "\(note[indexPath.row].memoDate)"
-        cell.contentsLabel.text = note[indexPath.row].memoContents
+        cell.tag = indexPath.row
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let fixMemo = UIContextualAction(style: .normal, title: nil) { action, view, completionHandler in
-            print(#function)
+            try! self.noteLocalRealm.write {
+                self.noteLocalRealm.delete(self.note[indexPath.row])
+            }
+            try! self.fixedNoteLocalRealm.write {
+                let fixedMemoData = FixedMemo(memoTitle: self.note[indexPath.row].memoTitle, memoDate: self.note[indexPath.row].memoDate, memoContents: self.note[indexPath.row].memoContents) //레코드 생성
+                self.fixedNoteLocalRealm.add(fixedMemoData)
+            }
+            self.mainView.tableView.reloadData()
+            print("Realm Deleted")
         }
+        print(#function)
+        
         //let image = note[indexPath.row].fixedMemo ? "pin.slash.fill" : "pin.slash"
         fixMemo.image = UIImage(systemName: "pin.fill")
         fixMemo.backgroundColor = .orange
@@ -125,9 +157,20 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
         let deleteMemo = UIContextualAction(style: .normal, title: nil) { action, view, completionHandler in
-            self.showAlert(title: "메모를 삭제하시겠습니까?") {
-                try! self.localRealm.write {
-                    self.localRealm.delete(self.note[indexPath.row])
+            self.showAlertForTrailingSwipe(title: "메모를 삭제하시겠습니까?") {
+                /*todo: 인덱스 에러 개선
+                if self.fixedNote != nil { //fixedNote에 데이터 있으면 고정된 메모데이터 삭제
+                    try! self.fixedNoteLocalRealm.write {
+                        self.fixedNoteLocalRealm.delete(self.fixedNote[indexPath.row])
+                    }
+                } else { //fixedNote에 데이터 없으면 메모데이터 삭제
+                    try! self.noteLocalRealm.write {
+                        self.noteLocalRealm.delete(self.note[indexPath.row])
+                    }
+                */
+                
+                try! self.noteLocalRealm.write {
+                    self.noteLocalRealm.delete(self.note[indexPath.row])
                     self.mainView.tableView.reloadData() //note변수에 didSet있는데 왜 reloadData가 안될까?
                     print("Realm Deleted")
                 }
@@ -173,6 +216,6 @@ extension MemoListViewController: UISearchResultsUpdating {
     //검색필터 조건설정
     func updateSearchResults(for searchController: UISearchController) {
         guard let text = searchController.searchBar.text else { return }
-        note = localRealm.objects(Memo.self).filter("memoTitle CONTAINS '\(text)'")
+        note = noteLocalRealm.objects(Memo.self).filter("memoTitle CONTAINS '\(text)'")
     }
 }

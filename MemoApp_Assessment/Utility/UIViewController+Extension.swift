@@ -8,15 +8,15 @@
 import UIKit
 
 extension UIViewController {
-    func showAlert(title: String, completionHandler: @escaping () -> Void) {
+    func showAlertForTrailingSwipe(title: String, completionHandler: @escaping () -> Void) {
         let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
         let ok = UIAlertAction(title: "확인", style: .destructive) { ok in
-            print(#function)
+            completionHandler() //completionHandler() 꼭 해줘야함. 없으면 외부에서 메서드실행안됨.
         }
         let cancel = UIAlertAction(title: "취소", style: .cancel, handler: nil)
         
         alert.addAction(ok)
         alert.addAction(cancel)
-        present(alert, animated: true)
+        self.present(alert, animated: true)
     }
 }

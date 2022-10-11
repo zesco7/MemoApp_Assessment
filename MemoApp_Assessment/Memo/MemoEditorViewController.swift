@@ -12,7 +12,7 @@ class MemoEditorViewController: BaseViewController {
     
     var mainView = MemoEditorView()
     
-    let localRealm = try! Realm()
+    let noteLocalRealm = try! Realm()
     
     override func loadView() {
         self.view = mainView
@@ -22,7 +22,7 @@ class MemoEditorViewController: BaseViewController {
         super.viewDidLoad()
         
         navigationAttribute()
-        print("Realm is located at: ", localRealm.configuration.fileURL!)
+        print("NoteLocalRealm is located at: ", noteLocalRealm.configuration.fileURL!)
         mainView.memoNote.becomeFirstResponder() //todo: 키보드가 텍스트뷰 가릴 때 키보드 올리기(IQKeyboardManager)
     }
     
@@ -44,12 +44,25 @@ class MemoEditorViewController: BaseViewController {
     }
     
     @objc func completionButtonClicked() {
-        //realm에 메모저장        
-        let memoData = Memo(memoTitle: mainView.memoNote.text!, memoDate: Date(), memoContents: mainView.memoNote.text!) //레코드 생성
+        //realm에 메모저장
+        //todo: 날짜포멧 적용
+        let dateFormatter = DateFormatter()
+        let startDate = Date()
+        let date = Date()
+        dateFormatter.locale = Locale(identifier: "ko")
+        dateFormatter.timeZone = TimeZone(abbreviation: "KST")
+        
+        let differenceDate = Calendar.current.dateComponents([.day], from: startDate, to: date)
+//        dateFormatter.dateFormat = "a HH:mm"
+//        dateFormatter.dateFormat = "E요일"
+        dateFormatter.dateFormat = "YYYY. MM. dd a hh:mm"
+        let memoCreatedDate = dateFormatter.string(from: date)
+        
+        let memoData = Memo(memoTitle: mainView.memoNote.text!, memoDate: memoCreatedDate, memoContents: mainView.memoNote.text!) //레코드 생성
         
         do {
-            try localRealm.write {
-                localRealm.add(memoData) //일기 레코드 추가
+            try noteLocalRealm.write {
+                noteLocalRealm.add(memoData) //일기 레코드 추가
                 print("Realm Success")
             }
         } catch let error {
