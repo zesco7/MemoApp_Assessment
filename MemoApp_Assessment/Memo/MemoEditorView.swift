@@ -10,6 +10,7 @@ import UIKit
 
 class MemoEditorView: BaseView {
     static var memoData : String?
+    static var memoEditingOpened = false
     
     let memoNote: UITextView = {
         let view = UITextView()

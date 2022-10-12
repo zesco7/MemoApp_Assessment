@@ -10,6 +10,7 @@ import RealmSwift
 
 class Memo: Object { //realm테이블 만들기(컬럼 생성)
     @Persisted var fixedMemo: Bool
+    @Persisted var editingOpened: Bool
     @Persisted var memoTitle: String
     @Persisted var memoDate = Date()
     @Persisted var memoContents: String?
@@ -18,27 +19,10 @@ class Memo: Object { //realm테이블 만들기(컬럼 생성)
     
     @Persisted(primaryKey: true) var objectId: ObjectId //pk등록
     
-    convenience init(fixedMemo: Bool, memoTitle: String, memoDate: Date, memoContents: String?) {
+    convenience init(fixedMemo: Bool, editingOpened: Bool, memoTitle: String, memoDate: Date, memoContents: String?) {
         self.init()
         self.fixedMemo = false
-        self.memoTitle = memoTitle
-        self.memoDate = memoDate
-        //self.memoHeader = memoHeader
-        self.memoContents = memoContents
-    }
-}
-
-class FixedMemo: Object { //realm테이블 만들기(컬럼 생성)
-    @Persisted var memoTitle: String
-    @Persisted var memoDate: String
-    @Persisted var memoContents: String?
-    //@Persisted var memoHeader: String?
-    //@Persisted var memoContents: String?
-    
-    @Persisted(primaryKey: true) var objectId: ObjectId //pk등록
-    
-    convenience init(memoTitle: String, memoDate: String, memoContents: String?) {
-        self.init()
+        self.editingOpened = false
         self.memoTitle = memoTitle
         self.memoDate = memoDate
         //self.memoHeader = memoHeader

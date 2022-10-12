@@ -16,20 +16,12 @@ class MemoListViewController: BaseViewController {
     let tvcell = MemoListTableViewCell()
     
     let noteLocalRealm = try! Realm()
-    let fixedNoteLocalRealm = try! Realm()
     
     var note : Results<Memo>! {
         didSet {
             note = noteLocalRealm.objects(Memo.self).sorted(byKeyPath: "memoDate", ascending: false)
             mainView.tableView.reloadData()
             print("MEMO UPDATED")
-        }
-    }
-    
-    var fixedNote : Results<FixedMemo>! {
-        didSet {
-            mainView.tableView.reloadData()
-            print("FIXED MEMO UPDATED")
         }
     }
     
@@ -168,7 +160,14 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        let memoToEdit = self.noteLocalRealm.objects(Memo.self).first!
+//        memoToEdit.memoContents = "test"
         let dataView = MemoEditorView()
+        try! noteLocalRealm.write {
+            note[indexPath.row].editingOpened = !note[indexPath.row].editingOpened
+        }
+        print(note[indexPath.row].editingOpened)
+        MemoEditorView.memoEditingOpened = note[indexPath.row].editingOpened
         MemoEditorView.memoData = self.note[indexPath.row].memoContents! //프로퍼티 생성하여 텍스트뷰에 값전달
         self.navigationController?.pushViewController(MemoEditorViewController(), animated: true)
     }

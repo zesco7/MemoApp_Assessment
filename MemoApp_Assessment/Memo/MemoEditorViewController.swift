@@ -13,7 +13,7 @@ class MemoEditorViewController: BaseViewController {
     var mainView = MemoEditorView()
     
     let noteLocalRealm = try! Realm()
-    
+        
     override func loadView() {
         self.view = mainView
     }
@@ -42,20 +42,33 @@ class MemoEditorViewController: BaseViewController {
     //뒤로가기+realm에 메모저장
     @objc func backButtonClicked() {
         print(#function)
+        let date = Date()
+        let memoData = Memo(fixedMemo: false, editingOpened: false, memoTitle: mainView.memoNote.text!, memoDate: date, memoContents: mainView.memoNote.text!)  //레코드 생성
+        
         if mainView.memoNote.text == "" {
             self.navigationController?.popViewController(animated: true) //완료시 메모리스트로 화면전환
         } else {
-            let date = Date()
-            let memoData = Memo(fixedMemo: false, memoTitle: mainView.memoNote.text!, memoDate: date, memoContents: mainView.memoNote.text!)  //레코드 생성
-            do {
-                try noteLocalRealm.write {
-                    noteLocalRealm.add(memoData) //일기 레코드 추가
-                    print("Realm Success")
+            if MemoEditorView.memoEditingOpened == false {
+                do {
+                    try noteLocalRealm.write {
+                        noteLocalRealm.add(memoData) //메모 레코드 추가
+                        print("Realm Add Success")
+                    }
+                } catch let error {
+                    print(error)
                 }
-            } catch let error {
-                print(error)
+                self.navigationController?.popViewController(animated: true)
+            } else {
+                do {
+                    try noteLocalRealm.write {
+                        memoData.memoContents = mainView.memoNote.text!
+                        print("Realm Update Success")
+                    }
+                } catch let error {
+                    print(error)
+                }
+                self.navigationController?.popViewController(animated: true)
             }
-            self.navigationController?.popViewController(animated: true) //완료시 메모리스트로 화면전환
         }
     }
     
@@ -65,20 +78,36 @@ class MemoEditorViewController: BaseViewController {
     
     //뒤로가기+realm에 메모저장
     @objc func completionButtonClicked() {
+        print(#function)
+        let date = Date()
+        let memoData = Memo(fixedMemo: false, editingOpened: false, memoTitle: mainView.memoNote.text!, memoDate: date, memoContents: mainView.memoNote.text!)  //레코드 생성
+        
         if mainView.memoNote.text == "" {
             self.navigationController?.popViewController(animated: true) //완료시 메모리스트로 화면전환
         } else {
-            let date = Date()
-            let memoData = Memo(fixedMemo: false, memoTitle: mainView.memoNote.text!, memoDate: date, memoContents: mainView.memoNote.text!)  //레코드 생성
-            do {
-                try noteLocalRealm.write {
-                    noteLocalRealm.add(memoData) //일기 레코드 추가
-                    print("Realm Success")
+            if MemoEditorView.memoEditingOpened == false {
+                do {
+                    try noteLocalRealm.write {
+                        noteLocalRealm.add(memoData) //메모 레코드 추가
+                        print("Realm Add Success")
+                    }
+                } catch let error {
+                    print(error)
                 }
-            } catch let error {
-                print(error)
+                self.navigationController?.popViewController(animated: true)
+            } else {
+                do {
+                    try noteLocalRealm.write {
+                        print("Update", #function)
+                        //메모 레코드 컬럼 업데이트 안되는 이유? completionButtonClicked() 함수실행은 되는데 해당 코드실행이 안됨
+                        memoData.memoContents = mainView.memoNote.text!
+                        print("Realm Update Success")
+                    }
+                } catch let error {
+                    print(error)
+                }
+                self.navigationController?.popViewController(animated: true)
             }
-            self.navigationController?.popViewController(animated: true) //완료시 메모리스트로 화면전환
         }
     }
 }
