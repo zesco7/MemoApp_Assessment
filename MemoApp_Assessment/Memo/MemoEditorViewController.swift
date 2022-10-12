@@ -17,60 +17,68 @@ class MemoEditorViewController: BaseViewController {
     override func loadView() {
         self.view = mainView
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         navigationAttribute()
         print("NoteLocalRealm is located at: ", noteLocalRealm.configuration.fileURL!)
         mainView.memoNote.becomeFirstResponder() //todo: 키보드가 텍스트뷰 가릴 때 키보드 올리기(IQKeyboardManager)
+        
     }
     
     func navigationAttribute() {
-        self.navigationController!.navigationBar.topItem!.title = "메모" //바버튼 제목 변경
+        //todo: 백버튼에 <표시 UIImage(systemName: "chevron.backward")
+        //self.navigationController!.navigationBar.topItem!.title = "메모" //바버튼 제목 변경
         self.navigationController!.navigationBar.tintColor = .orange //바버튼 색상 변경
-        
+        let backButton = UIBarButtonItem(title: "메모", style: .plain, target: self, action: #selector(backButtonClicked))
         let sharingButton = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"), style: .plain, target: self, action: #selector(sharingButtonClicked))
         let completionButton = UIBarButtonItem(title: "완료", style: .plain, target: self, action: #selector(completionButtonClicked))
         
-        sharingButton.tintColor = .orange
-        completionButton.tintColor = .orange
-        
+        navigationItem.leftBarButtonItem = backButton
         navigationItem.rightBarButtonItems = [completionButton, sharingButton]
+    }
+    
+    //뒤로가기+realm에 메모저장
+    @objc func backButtonClicked() {
+        print(#function)
+        if mainView.memoNote.text == "" {
+            self.navigationController?.popViewController(animated: true) //완료시 메모리스트로 화면전환
+        } else {
+            let date = Date()
+            let memoData = Memo(fixedMemo: false, memoTitle: mainView.memoNote.text!, memoDate: date, memoContents: mainView.memoNote.text!)  //레코드 생성
+            do {
+                try noteLocalRealm.write {
+                    noteLocalRealm.add(memoData) //일기 레코드 추가
+                    print("Realm Success")
+                }
+            } catch let error {
+                print(error)
+            }
+            self.navigationController?.popViewController(animated: true) //완료시 메모리스트로 화면전환
+        }
     }
     
     @objc func sharingButtonClicked() {
         //액티비티뷰 사용하여 메모내용 공유
     }
     
+    //뒤로가기+realm에 메모저장
     @objc func completionButtonClicked() {
-        //realm에 메모저장
-        //todo: 날짜포멧 적용
-        let dateFormatter = DateFormatter()
-        let startDate = Date()
-        let date = Date()
-        dateFormatter.locale = Locale(identifier: "ko")
-        dateFormatter.timeZone = TimeZone(abbreviation: "KST")
-        
-        let differenceDate = Calendar.current.dateComponents([.day], from: startDate, to: date)
-//        dateFormatter.dateFormat = "a HH:mm"
-//        dateFormatter.dateFormat = "E요일"
-        dateFormatter.dateFormat = "YYYY. MM. dd a hh:mm"
-        let memoCreatedDate = dateFormatter.string(from: date)
-        
-        let memoData = Memo(memoTitle: mainView.memoNote.text!, memoDate: memoCreatedDate, memoContents: mainView.memoNote.text!) //레코드 생성
-        
-        do {
-            try noteLocalRealm.write {
-                noteLocalRealm.add(memoData) //일기 레코드 추가
-                print("Realm Success")
+        if mainView.memoNote.text == "" {
+            self.navigationController?.popViewController(animated: true) //완료시 메모리스트로 화면전환
+        } else {
+            let date = Date()
+            let memoData = Memo(fixedMemo: false, memoTitle: mainView.memoNote.text!, memoDate: date, memoContents: mainView.memoNote.text!)  //레코드 생성
+            do {
+                try noteLocalRealm.write {
+                    noteLocalRealm.add(memoData) //일기 레코드 추가
+                    print("Realm Success")
+                }
+            } catch let error {
+                print(error)
             }
-        } catch let error {
-            print(error)
+            self.navigationController?.popViewController(animated: true) //완료시 메모리스트로 화면전환
         }
-        
-        //todo: 메모내용있으면 저장
-        
-        self.navigationController?.popViewController(animated: true) //완료시 메모리스트로 화면전환
     }
 }

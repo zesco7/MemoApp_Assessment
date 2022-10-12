@@ -9,10 +9,12 @@ import Foundation
 import UIKit
 
 class MemoEditorView: BaseView {
+    static var memoData : String?
     
     let memoNote: UITextView = {
-       let view = UITextView()
+        let view = UITextView()
         view.font = .systemFont(ofSize: 17)
+        view.text = MemoEditorView.memoData
         return view
     }()
     

@@ -20,6 +20,7 @@ class MemoListViewController: BaseViewController {
     
     var note : Results<Memo>! {
         didSet {
+            note = noteLocalRealm.objects(Memo.self).sorted(byKeyPath: "memoDate", ascending: false)
             mainView.tableView.reloadData()
             print("MEMO UPDATED")
         }
@@ -41,29 +42,30 @@ class MemoListViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print(#function)
         
         if AppLaunchStatusManager.shared.checkFirstRun() { //앱 첫실행 체크 후 alert 실행
             showAlert()
         } else { }
         
-        
-        
-        
-        note = noteLocalRealm.objects(Memo.self).sorted(byKeyPath: "memoDate", ascending: true)
-        fixedNote = fixedNoteLocalRealm.objects(FixedMemo.self).sorted(byKeyPath: "memoDate", ascending: true)
+        note = noteLocalRealm.objects(Memo.self).sorted(byKeyPath: "memoDate", ascending: false)
         mainView.createMemoButton.addTarget(self, action: #selector(createMemoButtonClicked), for: .touchUpInside)
         
-        makeSearchBar()
-        navigationAttribute()
+        
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        print(#function)
+        note = noteLocalRealm.objects(Memo.self).sorted(byKeyPath: "memoDate", ascending: false)
+        makeSearchBar()
+        navigationAttribute()
         mainView.tableView.reloadData()
     }
     
     @objc func createMemoButtonClicked() {
         let vc = MemoEditorViewController()
+        MemoEditorView.memoData = "" //작성버튼으로 화면전환할때는 텍스트뷰에 아무것도 안보이게 처리
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -95,39 +97,39 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
     //MARK: - 컨텐츠
     func numberOfSections(in tableView: UITableView) -> Int {
         //todo: 고정된 메모 있으면 섹션 2개, 없으면 1개
-        if fixedNote != nil {
-            return 2
-        } else {
-            return 1
-        }
+        return 1
+        //        let fixedMemoCount = self.noteLocalRealm.objects(Memo.self).filter("fixedMemo == true").count
+        //        if fixedMemoCount >= 1 {
+        //            return 2
+        //        } else {
+        //            return 1
+        //        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if fixedNote != nil && section == 0 {
-            return fixedNote.count
-        } else {
-            return note.count
-        }
+        note.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "MemoListTableViewCell", for: indexPath) as? MemoListTableViewCell else { return UITableViewCell() }
-
-        if fixedNote != nil { //fixedNote에 데이터 있으면 고정된 메모, 메모데이터 별도 표시
-            if indexPath.section == 0 {
-                cell.titleLabel.text = fixedNote[indexPath.row].memoTitle
-                cell.lastEditedDateLabel.text = "\(fixedNote[indexPath.row].memoDate)"
-                cell.contentsLabel.text = fixedNote[indexPath.row].memoContents
-            } else {
-                cell.titleLabel.text = note[indexPath.row].memoTitle
-                cell.lastEditedDateLabel.text = "\(note[indexPath.row].memoDate)"
-                cell.contentsLabel.text = note[indexPath.row].memoContents
-            }
-        } else { //fixedNote에 데이터 없으면 메모데이터만 표시
-            cell.titleLabel.text = note[indexPath.row].memoTitle
-            cell.lastEditedDateLabel.text = "\(note[indexPath.row].memoDate)"
-            cell.contentsLabel.text = note[indexPath.row].memoContents
-        }
+        let date = note[indexPath.row].memoDate
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "ko")
+        dateFormatter.timeZone = TimeZone(abbreviation: "KST")
+        dateFormatter.dateFormat = "a hh:mm"
+        
+        //        //todo: 날짜별 포멧 적용
+        //        if 작성일D-day {
+        //            dateFormatter.dateFormat = "a hh:mm"
+        //        } else if 작성일D-1 ~ 작성일D-6 {
+        //            dateFormatter.dateFormat = "E요일"
+        //        } else {
+        //            dateFormatter.dateFormat = "YYYY. MM. dd a hh:mm"
+        //        }
+        
+        cell.titleLabel.text = note[indexPath.row].memoTitle
+        cell.lastEditedDateLabel.text = dateFormatter.string(from: date)
+        cell.contentsLabel.text = note[indexPath.row].memoContents
         
         cell.tag = indexPath.row
         
@@ -135,21 +137,15 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        //todo: fixedMemo == true 는 고정메모 섹션에 표시
         let fixMemo = UIContextualAction(style: .normal, title: nil) { action, view, completionHandler in
-            try! self.noteLocalRealm.write {
-                self.noteLocalRealm.delete(self.note[indexPath.row])
-            }
-            try! self.fixedNoteLocalRealm.write {
-                let fixedMemoData = FixedMemo(memoTitle: self.note[indexPath.row].memoTitle, memoDate: self.note[indexPath.row].memoDate, memoContents: self.note[indexPath.row].memoContents) //레코드 생성
-                self.fixedNoteLocalRealm.add(fixedMemoData)
+            try! self.noteLocalRealm.write { //고정여부 체크 컬럼(fixedMemo)으로 상태 구분(일반메모, 고정메모로 테이블 구분하지 않고 메모 테이블에서 컬럼 추가하여 구분)
+                self.note[indexPath.row].fixedMemo = !self.note[indexPath.row].fixedMemo
             }
             self.mainView.tableView.reloadData()
-            print("Realm Deleted")
         }
-        print(#function)
-        
-        //let image = note[indexPath.row].fixedMemo ? "pin.slash.fill" : "pin.slash"
-        fixMemo.image = UIImage(systemName: "pin.fill")
+        let image = note[indexPath.row].fixedMemo ? "pin.slash.fill" : "pin.fill"
+        fixMemo.image = UIImage(systemName: image)
         fixMemo.backgroundColor = .orange
         return UISwipeActionsConfiguration(actions: [fixMemo])
     }
@@ -158,19 +154,9 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
         
         let deleteMemo = UIContextualAction(style: .normal, title: nil) { action, view, completionHandler in
             self.showAlertForTrailingSwipe(title: "메모를 삭제하시겠습니까?") {
-                /*todo: 인덱스 에러 개선
-                if self.fixedNote != nil { //fixedNote에 데이터 있으면 고정된 메모데이터 삭제
-                    try! self.fixedNoteLocalRealm.write {
-                        self.fixedNoteLocalRealm.delete(self.fixedNote[indexPath.row])
-                    }
-                } else { //fixedNote에 데이터 없으면 메모데이터 삭제
-                    try! self.noteLocalRealm.write {
-                        self.noteLocalRealm.delete(self.note[indexPath.row])
-                    }
-                */
-                
                 try! self.noteLocalRealm.write {
                     self.noteLocalRealm.delete(self.note[indexPath.row])
+                    self.navigationAttribute() //레코드 삭제했을때 메모갯수 변경
                     self.mainView.tableView.reloadData() //note변수에 didSet있는데 왜 reloadData가 안될까?
                     print("Realm Deleted")
                 }
@@ -182,7 +168,8 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //todo: 선택한 행 데이터가진 화면으로 이동 어떻게?
+        let dataView = MemoEditorView()
+        MemoEditorView.memoData = self.note[indexPath.row].memoContents! //프로퍼티 생성하여 텍스트뷰에 값전달
         self.navigationController?.pushViewController(MemoEditorViewController(), animated: true)
     }
     
@@ -200,11 +187,7 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         //todo: 필터링할 때 메모검색수 결과 표시
-        if section == 0 {
-            return "고정된 메모"
-        } else {
-            return "메모"
-        }
+        return "메모"
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -216,6 +199,6 @@ extension MemoListViewController: UISearchResultsUpdating {
     //검색필터 조건설정
     func updateSearchResults(for searchController: UISearchController) {
         guard let text = searchController.searchBar.text else { return }
-        note = noteLocalRealm.objects(Memo.self).filter("memoTitle CONTAINS '\(text)'")
+        note = noteLocalRealm.objects(Memo.self).filter("memoTitle CONTAINS '\(text)'") //왜 필터적용+화면갱신 안되는지?
     }
 }

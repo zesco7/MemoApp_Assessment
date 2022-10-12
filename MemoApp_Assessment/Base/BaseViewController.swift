@@ -20,7 +20,7 @@ class BaseViewController: UIViewController {
     }
     
     func rootViewAttribute() {
-        view.backgroundColor = .clear
+        view.backgroundColor = .black
         view.layer.cornerRadius = 10
     }
     
