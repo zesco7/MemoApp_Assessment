@@ -98,11 +98,13 @@ class MemoEditorViewController: BaseViewController {
                 self.navigationController?.popViewController(animated: true)
             } else {
                 do {
-                    try noteLocalRealm.write {
+                    try! noteLocalRealm.write {
                         print("Update", memoData.memoContents, #function)
                         print("Update", mainView.memoNote.text, #function)
+                        print("Update", MemoEditorView.memoData, #function)
                         //메모 레코드 컬럼 업데이트 안되는 이유? completionButtonClicked() 함수실행은 되는데 해당 코드실행이 안됨
-                        memoData.memoContents = mainView.memoNote.text!
+                        //memoData.memoContents,mainView.memoNote.text은 현재화면데이터 기준이므로 기존화면데이터인 MemoEditorView.memoData값이 변경되어야함.
+                        MemoEditorView.memoData = mainView.memoNote.text!                    
                         print("Realm Update Success")
                     }
                 } catch let error {
