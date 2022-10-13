@@ -160,11 +160,9 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        let memoToEdit = self.noteLocalRealm.objects(Memo.self).first!
-//        memoToEdit.memoContents = "test"
         let dataView = MemoEditorView()
         try! noteLocalRealm.write {
-            note[indexPath.row].editingOpened = !note[indexPath.row].editingOpened
+            note[indexPath.row].editingOpened = true
         }
         print(note[indexPath.row].editingOpened)
         MemoEditorView.memoEditingOpened = note[indexPath.row].editingOpened

@@ -78,6 +78,7 @@ class MemoEditorViewController: BaseViewController {
     
     //뒤로가기+realm에 메모저장
     @objc func completionButtonClicked() {
+        print(MemoEditorView.memoEditingOpened)
         print(#function)
         let date = Date()
         let memoData = Memo(fixedMemo: false, editingOpened: false, memoTitle: mainView.memoNote.text!, memoDate: date, memoContents: mainView.memoNote.text!)  //레코드 생성
@@ -98,7 +99,8 @@ class MemoEditorViewController: BaseViewController {
             } else {
                 do {
                     try noteLocalRealm.write {
-                        print("Update", #function)
+                        print("Update", memoData.memoContents, #function)
+                        print("Update", mainView.memoNote.text, #function)
                         //메모 레코드 컬럼 업데이트 안되는 이유? completionButtonClicked() 함수실행은 되는데 해당 코드실행이 안됨
                         memoData.memoContents = mainView.memoNote.text!
                         print("Realm Update Success")
