@@ -19,7 +19,6 @@ class MemoListViewController: BaseViewController {
     
     var note : Results<Memo>! {
         didSet {
-            note = noteLocalRealm.objects(Memo.self).sorted(byKeyPath: "memoDate", ascending: false)
             mainView.tableView.reloadData()
             print("MEMO UPDATED")
         }
@@ -57,7 +56,7 @@ class MemoListViewController: BaseViewController {
     
     @objc func createMemoButtonClicked() {
         let vc = MemoEditorViewController()
-        MemoEditorView.memoData = "" //작성버튼으로 화면전환할때는 텍스트뷰에 아무것도 안보이게 처리
+        MemoEditorView.memoData?.memoTitle = "" //작성버튼으로 화면전환할때는 텍스트뷰에 아무것도 안보이게 처리
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -88,18 +87,29 @@ class MemoListViewController: BaseViewController {
 extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
     //MARK: - 컨텐츠
     func numberOfSections(in tableView: UITableView) -> Int {
-        //todo: 고정된 메모 있으면 섹션 2개, 없으면 1개
+        //고정된 메모 있으면 섹션 2개, 없으면 1개
+        let fixedMemoCount = self.noteLocalRealm.objects(Memo.self).filter("fixedMemo == true").count
+        if fixedMemoCount >= 1 {
+            return 2
+        } else {
+            return 1
+        }
         return 1
-        //        let fixedMemoCount = self.noteLocalRealm.objects(Memo.self).filter("fixedMemo == true").count
-        //        if fixedMemoCount >= 1 {
-        //            return 2
-        //        } else {
-        //            return 1
-        //        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        note.count
+        //todo: 메모 고정하면 고정하지 않은 메모 바뀌는 이유?
+        let fixedMemoCount = self.noteLocalRealm.objects(Memo.self).filter("fixedMemo == true").count
+        let unFixedMemoCount = self.noteLocalRealm.objects(Memo.self).filter("fixedMemo == false").count
+        if fixedMemoCount >= 1 {
+            if section == 0 {
+                return fixedMemoCount
+            } else {
+                return unFixedMemoCount
+            }
+        } else {
+            return unFixedMemoCount
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -129,7 +139,7 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        //todo: fixedMemo == true 는 고정메모 섹션에 표시
+        //fixedMemo == true 는 고정메모 섹션에 표시
         let fixMemo = UIContextualAction(style: .normal, title: nil) { action, view, completionHandler in
             try! self.noteLocalRealm.write { //고정여부 체크 컬럼(fixedMemo)으로 상태 구분(일반메모, 고정메모로 테이블 구분하지 않고 메모 테이블에서 컬럼 추가하여 구분)
                 self.note[indexPath.row].fixedMemo = !self.note[indexPath.row].fixedMemo
@@ -166,7 +176,7 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
         }
         print(note[indexPath.row].editingOpened)
         MemoEditorView.memoEditingOpened = note[indexPath.row].editingOpened
-        MemoEditorView.memoData = self.note[indexPath.row].memoContents! //프로퍼티 생성하여 텍스트뷰에 값전달
+        MemoEditorView.memoData?.memoTitle = self.note[indexPath.row].memoTitle //프로퍼티 생성하여 텍스트뷰에 값전달
         self.navigationController?.pushViewController(MemoEditorViewController(), animated: true)
     }
     
@@ -176,19 +186,43 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
     
     //MARK: - 헤더
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-        guard let header = view as? UITableViewHeaderFooterView else { return }
-        header.textLabel?.textColor = .white
-        header.textLabel?.font = .systemFont(ofSize: 25, weight: .bold)
-        header.textLabel?.textAlignment = .left
+        if section >= 0 {
+            guard let header = view as? UITableViewHeaderFooterView else { return }
+            header.textLabel?.textColor = .white
+            header.textLabel?.font = .systemFont(ofSize: 25, weight: .bold)
+            header.textLabel?.textAlignment = .left
+        }
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        //todo: 필터링할 때 메모검색수 결과 표시
-        return "메모"
+        //필터링할 때 메모검색수 결과 표시
+        if numberOfSections(in: mainView.tableView) == 1 {
+            return "메모"
+        } else if numberOfSections(in: mainView.tableView) == 2 {
+            if section == 0 {
+                return "고정된 메모"
+            } else {
+                return "메모"
+            }
+        } else {
+            return "메모"
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 60
+        if numberOfSections(in: mainView.tableView) == 1 {
+            return 100
+        } else if numberOfSections(in: mainView.tableView) == 2 {
+            if section == 0 {
+                return 50
+            } else if section == 1 {
+                return 100
+            } else {
+                return 0
+            }
+        } else {
+            return 0
+        }
     }
 }
 
