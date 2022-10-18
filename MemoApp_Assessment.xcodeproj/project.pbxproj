@@ -27,6 +27,7 @@
 		981B960628F41A9200D2EBFA /* AppLaunchStatusManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 981B960528F41A9200D2EBFA /* AppLaunchStatusManager.swift */; };
 		9884B71A28F2FAC20032E3B4 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 9884B71928F2FAC20032E3B4 /* Realm */; };
 		9884B71C28F2FAC20032E3B4 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 9884B71B28F2FAC20032E3B4 /* RealmSwift */; };
+		9885643728FE4EC4008DDEF6 /* SimpleCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9885643628FE4EC4008DDEF6 /* SimpleCollectionViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 		980E439628F2D887004D15FD /* RealmModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmModel.swift; sourceTree = "<group>"; };
 		981B960228F4162100D2EBFA /* UIViewController+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extension.swift"; sourceTree = "<group>"; };
 		981B960528F41A9200D2EBFA /* AppLaunchStatusManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLaunchStatusManager.swift; sourceTree = "<group>"; };
+		9885643628FE4EC4008DDEF6 /* SimpleCollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleCollectionViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +86,7 @@
 		980E435628F2B758004D15FD /* MemoApp_Assessment */ = {
 			isa = PBXGroup;
 			children = (
+				9885643528FE4E6A008DDEF6 /* CollectionView */,
 				981B960428F41A6000D2EBFA /* AppManager */,
 				980E438E28F2D052004D15FD /* Framework */,
 				980E436528F2B759004D15FD /* Info.plist */,
@@ -159,6 +162,14 @@
 				981B960528F41A9200D2EBFA /* AppLaunchStatusManager.swift */,
 			);
 			path = AppManager;
+			sourceTree = "<group>";
+		};
+		9885643528FE4E6A008DDEF6 /* CollectionView */ = {
+			isa = PBXGroup;
+			children = (
+				9885643628FE4EC4008DDEF6 /* SimpleCollectionViewController.swift */,
+			);
+			path = CollectionView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -247,6 +258,7 @@
 				981B960328F4162100D2EBFA /* UIViewController+Extension.swift in Sources */,
 				981B960628F41A9200D2EBFA /* AppLaunchStatusManager.swift in Sources */,
 				980E437528F2B7D2004D15FD /* MemoListTableViewCell.swift in Sources */,
+				9885643728FE4EC4008DDEF6 /* SimpleCollectionViewController.swift in Sources */,
 				980E437928F2B7EF004D15FD /* MemoListView.swift in Sources */,
 				980E439728F2D887004D15FD /* RealmModel.swift in Sources */,
 				980E437128F2B7B8004D15FD /* BaseViewController.swift in Sources */,
@@ -411,7 +423,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -441,7 +453,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
