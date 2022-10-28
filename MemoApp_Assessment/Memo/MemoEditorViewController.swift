@@ -13,9 +13,16 @@ class MemoEditorViewController: BaseViewController {
     var mainView = MemoEditorView()
     
     let noteLocalRealm = try! Realm()
+    let memoEditorView = MemoEditorView()
+    let vc = MemoListViewController()
+    var tasks : Results<Memo>! {
+        didSet {
+            print("MEMO UPDATED")
+        }
+    }
     
-    var tasks : Memo?
-        
+    var memoDataInRealm : Memo?
+
     override func loadView() {
         self.view = mainView
     }
@@ -23,6 +30,8 @@ class MemoEditorViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        tasks = noteLocalRealm.objects(Memo.self)
+
         navigationAttribute()
         print("NoteLocalRealm is located at: ", noteLocalRealm.configuration.fileURL!)
         mainView.memoNote.becomeFirstResponder() //todo: 키보드가 텍스트뷰 가릴 때 키보드 올리기(IQKeyboardManager)
@@ -43,35 +52,7 @@ class MemoEditorViewController: BaseViewController {
     
     //뒤로가기+realm에 메모저장
     @objc func backButtonClicked() {
-        print(#function)
-        let date = Date()
-        let memoData = Memo(fixedMemo: false, editingOpened: false, memoTitle: mainView.memoNote.text!, memoDate: date, memoContents: mainView.memoNote.text!)  //레코드 생성
-        
-        if mainView.memoNote.text == "" {
-            self.navigationController?.popViewController(animated: true) //완료시 메모리스트로 화면전환
-        } else {
-            if MemoEditorView.memoEditingOpened == false {
-                do {
-                    try noteLocalRealm.write {
-                        noteLocalRealm.add(memoData) //메모 레코드 추가
-                        print("Realm Add Success")
-                    }
-                } catch let error {
-                    print(error)
-                }
-                self.navigationController?.popViewController(animated: true)
-            } else {
-                do {
-                    try noteLocalRealm.write {
-                        memoData.memoContents = mainView.memoNote.text!
-                        print("Realm Update Success")
-                    }
-                } catch let error {
-                    print(error)
-                }
-                self.navigationController?.popViewController(animated: true)
-            }
-        }
+        self.navigationController?.popViewController(animated: true)
     }
     
     @objc func sharingButtonClicked() {
@@ -80,40 +61,38 @@ class MemoEditorViewController: BaseViewController {
     
     //뒤로가기+realm에 메모저장
     @objc func completionButtonClicked() {
-        print(MemoEditorView.memoEditingOpened)
-        print(#function)
-        let date = Date()
-        let memoData = Memo(fixedMemo: false, editingOpened: false, memoTitle: mainView.memoNote.text!, memoDate: date, memoContents: mainView.memoNote.text!)  //레코드 생성
         
-        if mainView.memoNote.text == "" {
-            self.navigationController?.popViewController(animated: true) //완료시 메모리스트로 화면전환
-        } else {
-            if MemoEditorView.memoEditingOpened == false {
+        let date = Date()
+        memoDataInRealm = Memo(fixedMemo: false, editingOpened: false, memoTitle: mainView.memoNote.text!, memoDate: date, memoContents: mainView.memoNote.text!)  //레코드 생성
+        
+        //메모 생성&수정: 메모 첫 생성 했을 때 텍스트뷰에 내용 입력하면 메모 레코드 추가 + 화면전환
+            if MemoEditorView.memoEditingOpened == false { //메모 첫 생성 했을 때
+                if mainView.memoNote.text != "" { //텍스트뷰에 내용 입력하면
                 do {
                     try noteLocalRealm.write {
-                        noteLocalRealm.add(memoData) //메모 레코드 추가
+                        noteLocalRealm.add(memoDataInRealm!) //메모 레코드 추가
                         print("Realm Add Success")
+                        print("메모제목: \(memoDataInRealm!.memoTitle)")
                     }
                 } catch let error {
                     print(error)
                 }
-                self.navigationController?.popViewController(animated: true)
-            } else {
-                do {
-                    try noteLocalRealm.write {
-                        print("Update", MemoEditorView.memoData, #function)
-                        //메모 레코드 컬럼 업데이트 안되는 이유? completionButtonClicked() 함수실행은 되는데 해당 코드실행이 안됨
-                        //memoData.memoContents,mainView.memoNote.text은 현재화면데이터 기준이므로 기존화면데이터인 MemoEditorView.memoData값이 변경되어야함.
-                        //tasks?.memoTitle =
-                        MemoEditorView.memoData?.memoTitle = tasks!.memoTitle
-                        print(MemoEditorView.memoData?.memoTitle)
-                        print("Realm Update Success")
-                    }
-                } catch let error {
-                    print(error)
-                }
+                self.navigationController?.popViewController(animated: true) //화면전환
+            } else { //내용 입력안하면
                 self.navigationController?.popViewController(animated: true)
             }
+        } else { //메모 수정 시도
+            
+//            do {
+//                try noteLocalRealm.write {
+//                    memoDataInRealm?.memoTitle = mainView.memoNote.text
+//                }
+//            } catch let error {
+//                print(error)
+//            }
+            print("memo data in textView", mainView.memoNote.text)
+//            self.navigationController?.popViewController(animated: true) //화면전환
+            print("Memo Edited")
         }
     }
 }

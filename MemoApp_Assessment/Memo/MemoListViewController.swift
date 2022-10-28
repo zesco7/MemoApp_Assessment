@@ -16,7 +16,7 @@ class MemoListViewController: BaseViewController {
     let tvcell = MemoListTableViewCell()
     
     let noteLocalRealm = try! Realm()
-    
+    let memoEditorView = MemoEditorView()
     var note : Results<Memo>! {
         didSet {
             mainView.tableView.reloadData()
@@ -56,7 +56,8 @@ class MemoListViewController: BaseViewController {
     
     @objc func createMemoButtonClicked() {
         let vc = MemoEditorViewController()
-        MemoEditorView.memoData?.memoTitle = "" //작성버튼으로 화면전환할때는 텍스트뷰에 아무것도 안보이게 처리
+        MemoEditorView.memoData = ""
+        //MemoEditorView.memoData?.memoTitle = "" //작성버튼으로 화면전환할때는 텍스트뷰에 아무것도 안보이게 처리
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -132,7 +133,6 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
         cell.titleLabel.text = note[indexPath.row].memoTitle
         cell.lastEditedDateLabel.text = dateFormatter.string(from: date)
         cell.contentsLabel.text = note[indexPath.row].memoContents
-        
         cell.tag = indexPath.row
         
         return cell
@@ -174,9 +174,21 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
         try! noteLocalRealm.write {
             note[indexPath.row].editingOpened = true
         }
-        print(note[indexPath.row].editingOpened)
-        MemoEditorView.memoEditingOpened = note[indexPath.row].editingOpened
-        MemoEditorView.memoData?.memoTitle = self.note[indexPath.row].memoTitle //프로퍼티 생성하여 텍스트뷰에 값전달
+        
+        //MemoEditorView인스턴스 생성하면 텍스트뷰에 값 저장은 되는데
+        memoEditorView.memoNote.text = self.note[indexPath.row].memoTitle
+        
+        //MemoEditorView클래스 프로퍼티로 텍스트뷰에 값 저장했는데 nil
+//        MemoEditorView.memoData?.memoTitle = self.note[indexPath.row].memoTitle
+        
+        //MemoEditorView클래스 프로퍼티에서 텍스트뷰.text타입 string이면 화면 전환시 화면에 값표시됨
+        //MemoEditorViewController에서 셀누르면 보이는 화면에서 완료버튼 누르면 레코드 새로 추가됨(memoEditingOpened = true일때 아무 이벤트 없는데도)
+        MemoEditorView.memoData = self.note[indexPath.row].memoTitle
+        
+        print("didselect", memoEditorView.memoNote.text)
+//        print("didselect2", MemoEditorView.memoData?.memoTitle)
+        print("didselect3", MemoEditorView.memoData)
+        
         self.navigationController?.pushViewController(MemoEditorViewController(), animated: true)
     }
     
