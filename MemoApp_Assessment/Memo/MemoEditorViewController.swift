@@ -11,17 +11,15 @@ import RealmSwift
 class MemoEditorViewController: BaseViewController {
     
     var mainView = MemoEditorView()
+    let memoEditorView = MemoEditorView()
     
     let noteLocalRealm = try! Realm()
-    let memoEditorView = MemoEditorView()
-    let vc = MemoListViewController()
+    var memoDataInRealm : Memo?
     var tasks : Results<Memo>! {
         didSet {
             print("MEMO UPDATED")
         }
     }
-    
-    var memoDataInRealm : Memo?
 
     override func loadView() {
         self.view = mainView
@@ -29,9 +27,7 @@ class MemoEditorViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        tasks = noteLocalRealm.objects(Memo.self)
-
+    
         navigationAttribute()
         print("NoteLocalRealm is located at: ", noteLocalRealm.configuration.fileURL!)
         mainView.memoNote.becomeFirstResponder() //todo: 키보드가 텍스트뷰 가릴 때 키보드 올리기(IQKeyboardManager)
@@ -88,7 +84,8 @@ class MemoEditorViewController: BaseViewController {
                 do {
                     try noteLocalRealm.write {
                         //realm memoTitle 업데이트
-                        //MemoEditorView.memoData가 참조하는 데이터(MemoListViewController의 note)를 변경해야하는데 didSelect 인덱스에 맞는 데이터로 어떻게 접근하는지?
+                        //MemoEditorView.memoData가 참조하는 데이터(MemoListViewController의 note)를 변경하기 위해 MemoEditorView의 프로퍼티에 MemoListViewController의 note를 받았는데 memoTitle컬럼에 어떻게 접근하는지, 데이터 인덱스는 어떻게 맞추는지?
+                        
 
                     }
                 } catch let error {
