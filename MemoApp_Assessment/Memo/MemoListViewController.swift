@@ -184,7 +184,7 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
         //MemoEditorView클래스 프로퍼티에서 텍스트뷰.text타입 string이면 화면 전환시 화면에 값표시됨
         //MemoEditorViewController에서 셀누르면 보이는 화면에서 완료버튼 누르면 레코드 새로 추가됨(memoEditingOpened = true일때 아무 이벤트 없는데도)
         MemoEditorView.memoData = self.note[indexPath.row].memoTitle
-        
+            
         print("didselect", memoEditorView.memoNote.text)
 //        print("didselect2", MemoEditorView.memoData?.memoTitle)
         print("didselect3", MemoEditorView.memoData)

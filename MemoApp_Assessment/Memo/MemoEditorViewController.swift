@@ -82,17 +82,20 @@ class MemoEditorViewController: BaseViewController {
                 self.navigationController?.popViewController(animated: true)
             }
         } else { //메모 수정 시도
-            
-//            do {
-//                try noteLocalRealm.write {
-//                    memoDataInRealm?.memoTitle = mainView.memoNote.text
-//                }
-//            } catch let error {
-//                print(error)
-//            }
-            print("memo data in textView", mainView.memoNote.text)
-//            self.navigationController?.popViewController(animated: true) //화면전환
-            print("Memo Edited")
+            if MemoEditorView.memoData == mainView.memoNote.text { //내용 같으면 데이터변경없이 화면 전환
+                self.navigationController?.popViewController(animated: true)
+            } else { //내용 다르면 데이터변경하고 화면 전환
+                do {
+                    try noteLocalRealm.write {
+                        //realm memoTitle 업데이트
+                        //MemoEditorView.memoData가 참조하는 데이터(MemoListViewController의 note)를 변경해야하는데 didSelect 인덱스에 맞는 데이터로 어떻게 접근하는지?
+
+                    }
+                } catch let error {
+                    print(error)
+                }
+                print("Memo Edited")
+            }
         }
     }
 }
