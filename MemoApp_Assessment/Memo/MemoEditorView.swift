@@ -12,6 +12,7 @@ import RealmSwift
 class MemoEditorView: BaseView {
     static var memoData : String = "" //realm타입으로 받아서 view.text에 넣을수가 없어서 String으로 타입변경
     //static var memoData : Memo?
+    static var memoIndex : Int?
     static var memoEditingOpened = false
     
     let memoNote: UITextView = {

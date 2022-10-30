@@ -174,22 +174,16 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
         try! noteLocalRealm.write {
             note[indexPath.row].editingOpened = true
         }
-        
-        //MemoEditorView인스턴스 생성하면 텍스트뷰에 값 저장은 되는데
-        memoEditorView.memoNote.text = self.note[indexPath.row].memoTitle
-        
-        //MemoEditorView클래스 프로퍼티로 텍스트뷰에 값 저장했는데 nil
-//        MemoEditorView.memoData?.memoTitle = self.note[indexPath.row].memoTitle
-        
-        //MemoEditorView클래스 프로퍼티에서 텍스트뷰.text타입 string이면 화면 전환시 화면에 값표시됨
-        //MemoEditorViewController에서 셀누르면 보이는 화면에서 완료버튼 누르면 레코드 새로 추가됨(memoEditingOpened = true일때 아무 이벤트 없는데도)
+  
         MemoEditorView.memoData = self.note[indexPath.row].memoTitle
         let vc = MemoEditorViewController()
         vc.tasks = note
-        print("didselect", memoEditorView.memoNote.text)
-//        print("didselect2", MemoEditorView.memoData?.memoTitle)
-        print("didselect3", MemoEditorView.memoData)
+        vc.memoDataInRealm = note[indexPath.row]
+        vc.memoIndex = indexPath.row
+        NotificationCenter.default.post(name: NSNotification.Name("memoData"), object: nil, userInfo: ["memoData": note[indexPath.row]])
         
+        print((note[indexPath.row]))
+
         self.navigationController?.pushViewController(MemoEditorViewController(), animated: true)
     }
     

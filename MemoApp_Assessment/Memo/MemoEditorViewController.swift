@@ -15,6 +15,7 @@ class MemoEditorViewController: BaseViewController {
     
     let noteLocalRealm = try! Realm()
     var memoDataInRealm : Memo?
+    var memoIndex : Int?
     var tasks : Results<Memo>! {
         didSet {
             print("MEMO UPDATED")
@@ -31,7 +32,8 @@ class MemoEditorViewController: BaseViewController {
         navigationAttribute()
         print("NoteLocalRealm is located at: ", noteLocalRealm.configuration.fileURL!)
         mainView.memoNote.becomeFirstResponder() //todo: 키보드가 텍스트뷰 가릴 때 키보드 올리기(IQKeyboardManager)
-        
+        print(memoDataInRealm)
+        //print(tasks[memoIndex].memoTitle)
     }
     
     func navigationAttribute() {
@@ -58,17 +60,16 @@ class MemoEditorViewController: BaseViewController {
     //뒤로가기+realm에 메모저장
     @objc func completionButtonClicked() {
         
-        let date = Date()
-        memoDataInRealm = Memo(fixedMemo: false, editingOpened: false, memoTitle: mainView.memoNote.text!, memoDate: date, memoContents: mainView.memoNote.text!)  //레코드 생성
-        
+        print(memoDataInRealm)
         //메모 생성&수정: 메모 첫 생성 했을 때 텍스트뷰에 내용 입력하면 메모 레코드 추가 + 화면전환
             if MemoEditorView.memoEditingOpened == false { //메모 첫 생성 했을 때
+                let date = Date()
+                memoDataInRealm = Memo(fixedMemo: false, editingOpened: false, memoTitle: mainView.memoNote.text!, memoDate: date, memoContents: mainView.memoNote.text!)  //레코드 생성
                 if mainView.memoNote.text != "" { //텍스트뷰에 내용 입력하면
                 do {
                     try noteLocalRealm.write {
                         noteLocalRealm.add(memoDataInRealm!) //메모 레코드 추가
                         print("Realm Add Success")
-                        print("메모제목: \(memoDataInRealm!.memoTitle)")
                     }
                 } catch let error {
                     print(error)
@@ -86,12 +87,13 @@ class MemoEditorViewController: BaseViewController {
                         //realm memoTitle 업데이트
                         //MemoEditorView.memoData가 참조하는 데이터(MemoListViewController의 note)를 변경하기 위해 MemoEditorView의 프로퍼티에 MemoListViewController의 note를 받았는데 memoTitle컬럼에 어떻게 접근하는지, 데이터 인덱스는 어떻게 맞추는지?
                         
+                        tasks[memoIndex!].memoTitle = mainView.memoNote.text
+                        //memoDataInRealm?.memoTitle = mainView.memoNote.text
 
                     }
                 } catch let error {
                     print(error)
                 }
-                print("Memo Edited")
             }
         }
     }
