@@ -14,14 +14,15 @@ class BaseViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         rootViewAttribute()
         configure()
     }
     
     func rootViewAttribute() {
-        view.backgroundColor = .black
+        view.backgroundColor = .clear
         view.layer.cornerRadius = 10
+        
     }
     
     func configure() { }

@@ -12,14 +12,12 @@ import RealmSwift
 class MemoEditorView: BaseView {
     static var memoData : String = "" //realm타입으로 받아서 view.text에 넣을수가 없어서 String으로 타입변경
     //static var memoData : Memo?
-    static var memoIndex : Int?
     static var memoEditingOpened = false
     
     let memoNote: UITextView = {
         let view = UITextView()
         view.font = .systemFont(ofSize: 17)
         view.text = MemoEditorView.memoData
-        //view.text = MemoEditorView.memoData?.memoTitle
         
         return view
     }()
@@ -29,7 +27,7 @@ class MemoEditorView: BaseView {
     }
     
     override func setConstraints() {
-       memoNote.snp.makeConstraints { make in
+        memoNote.snp.makeConstraints { make in
             make.topMargin.equalTo(0)
             make.leadingMargin.equalTo(0)
             make.trailingMargin.equalTo(0)

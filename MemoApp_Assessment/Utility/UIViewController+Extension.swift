@@ -19,4 +19,12 @@ extension UIViewController {
         alert.addAction(cancel)
         self.present(alert, animated: true)
     }
+    
+    func darkModeColorApplied() {
+        if #available(iOS 13, *) {
+            view.backgroundColor = .systemBackground
+        } else {
+            view.backgroundColor = .blue
+        }
+    }
 }

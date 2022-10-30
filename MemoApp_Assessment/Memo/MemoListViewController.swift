@@ -33,7 +33,7 @@ class MemoListViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print(#function)
+        darkModeColorApplied()
         
         if AppLaunchStatusManager.shared.checkFirstRun() { //앱 첫실행 체크 후 alert 실행
             showAlert()
@@ -41,9 +41,6 @@ class MemoListViewController: BaseViewController {
         
         note = noteLocalRealm.objects(Memo.self).sorted(byKeyPath: "memoDate", ascending: false)
         mainView.createMemoButton.addTarget(self, action: #selector(createMemoButtonClicked), for: .touchUpInside)
-        
-        
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -57,7 +54,14 @@ class MemoListViewController: BaseViewController {
     @objc func createMemoButtonClicked() {
         let vc = MemoEditorViewController()
         MemoEditorView.memoData = ""
-        //MemoEditorView.memoData?.memoTitle = "" //작성버튼으로 화면전환할때는 텍스트뷰에 아무것도 안보이게 처리
+        
+        //메모작성버튼 클릭시 ud값 초기화해서 메모 작성/수정 구분
+        if UserDefaults.standard.object(forKey: "createMemoButtonClicked") == nil {
+            UserDefaults.standard.set("createOrEdit", forKey: "createMemoButtonClicked")
+            print(UserDefaults.standard.object(forKey: "createMemoButtonClicked")!)
+        } else {
+            print(#function)
+        }
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -129,10 +133,10 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
         //        } else {
         //            dateFormatter.dateFormat = "YYYY. MM. dd a hh:mm"
         //        }
-        
+
         cell.titleLabel.text = note[indexPath.row].memoTitle
         cell.lastEditedDateLabel.text = dateFormatter.string(from: date)
-        cell.contentsLabel.text = note[indexPath.row].memoContents
+        cell.contentsLabel.text = note[indexPath.row].memoTitle //첫줄, 그 외 구분해서 제목/내용 나눠야함
         cell.tag = indexPath.row
         
         return cell
@@ -170,21 +174,18 @@ extension MemoListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print(print(UserDefaults.standard.object(forKey: "createMemoButtonClicked")))
         let dataView = MemoEditorView()
         try! noteLocalRealm.write {
             note[indexPath.row].editingOpened = true
         }
-  
-        MemoEditorView.memoData = self.note[indexPath.row].memoTitle
+        MemoEditorView.memoEditingOpened = self.note[indexPath.row].editingOpened
+        MemoEditorView.memoData = self.note[indexPath.row].memoTitle //텍스트뷰에 선택한 셀 memoTitle 값전달
         let vc = MemoEditorViewController()
-        vc.tasks = note
         vc.memoDataInRealm = note[indexPath.row]
-        vc.memoIndex = indexPath.row
-        NotificationCenter.default.post(name: NSNotification.Name("memoData"), object: nil, userInfo: ["memoData": note[indexPath.row]])
-        
-        print((note[indexPath.row]))
-
-        self.navigationController?.pushViewController(MemoEditorViewController(), animated: true)
+       
+        //화면전환시 값전달한 VC로 화면전환(MemoEditorViewController()가 아니라 vc)
+        self.navigationController?.pushViewController(vc, animated: true)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
